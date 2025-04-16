@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "qlcustomspawn",
+  "version": "${version}",
+  "name": "QLCustomSpawn",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/qlcustomspawn/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "fabric-datagen": [
+      "io.github.yuazer.qlcustomspawn.client.QlcustomspawnDataGenerator"
+    ],
+    "main": [
+      "io.github.yuazer.qlcustomspawn.Qlcustomspawn"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-language-kotlin": ">=${kotlin_loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
