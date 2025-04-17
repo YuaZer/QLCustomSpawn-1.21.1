@@ -3,6 +3,7 @@ package io.github.yuazer.qlcustomspawn.commands
 import io.github.yuazer.qlcustomspawn.Qlcustomspawn
 import io.github.yuazer.qlcustomspawn.api.data.ContainerApi
 import io.github.yuazer.qlcustomspawn.api.data.CreaterApi
+import io.github.yuazer.qlcustomspawn.api.extension.EntityExtension.getLookedLocation
 import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.locToString
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -28,13 +29,26 @@ object MainCommand {
     val help = subCommand {
         createHelper(true)
     }
+
     @CommandBody(permission = "qlcustomspawn.debug")
     val debug = subCommand {
         execute<CommandSender> { sender, context, argument ->
-            if (sender is Player){
+            if (sender is Player) {
                 sender.sendLang("当前Location的信息是:")
                 sender.sendMessage(sender.location.locToString())
             }
         }
     }
+
+    @CommandBody(permission = "qlcustomspawn.getloc")
+    val getloc = subCommand {
+        execute<CommandSender> { sender, context, argument ->
+            if (sender is Player) {
+                sender.sendLang("你所看向的Location的信息是:")
+                sender.getLookedLocation(10)?.let { sender.sendMessage(it.locToString()) }
+                    ?: sender.sendLang("没有检测到你看向的方块")
+            }
+        }
+    }
+
 }
