@@ -55,6 +55,9 @@ taboolib {
         contributors {
             name("YuaZer")
         }
+        dependencies{
+            name("PlaceholderAPI")
+        }
     }
     version { taboolib = "6.2.3"
         isSkipKotlinRelocate = true
@@ -70,12 +73,6 @@ tasks {
     named("remapJar") {
         dependsOn("jar")
     }
-//
-//    // 设置主 jar 不包含 Spigot
-//    named<Jar>("jar") {
-//        // 仅包含你自己的类 + fabric.mod.json
-//        exclude("org/bukkit/**", "net/minecraft/**")
-//    }
 }
 fabricApi {
     configureDataGeneration {

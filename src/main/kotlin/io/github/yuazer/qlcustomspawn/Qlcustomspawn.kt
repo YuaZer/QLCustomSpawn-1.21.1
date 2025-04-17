@@ -3,19 +3,14 @@ package io.github.yuazer.qlcustomspawn
 import io.github.yuazer.qlcustomspawn.data.DataLoader
 import io.github.yuazer.qlcustomspawn.manager.ContainerManager
 import io.github.yuazer.qlcustomspawn.manager.CreaterManager
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
-import net.minecraft.server.MinecraftServer
 import taboolib.common.LifeCycle
-import taboolib.common.io.newFile
 import taboolib.common.io.newFolder
 import taboolib.common.platform.Awake
 import taboolib.common.platform.Plugin
-import taboolib.common.platform.function.releaseResourceFile
 import taboolib.common.platform.function.releaseResourceFolder
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.ConfigFile
 import taboolib.platform.BukkitPlugin
-import java.io.File
 
 object Qlcustomspawn : Plugin() {
     @Config("config.yml")

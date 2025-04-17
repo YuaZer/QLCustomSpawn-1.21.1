@@ -1,9 +1,14 @@
 #随便取
 阿勃梭鲁:
   #生成参数
-  spec: "Absol"
+  spec:
+    - "Absol"
   #概率权重
   chance: 1.2
 普通精灵:
-  spec: "random"
+  spec:
+    - "Bulbasaur"
+    - "Charmander"
+    - "Squirtle"
+    - "Pikachu"
   chance: 89.00

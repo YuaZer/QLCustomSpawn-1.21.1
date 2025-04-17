@@ -1,5 +1,6 @@
 package io.github.yuazer.qlcustomspawn.utils
 
+import io.github.yuazer.qlcustomspawn.api.extension.EntityExtension.isCobblemon
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -27,10 +28,7 @@ object LocationUtils {
             val x = entity.location.x
             val y = entity.location.y
             val z = entity.location.z
-            (entity.type.key.namespace.equals(
-                "cobblemon",
-                true
-            )) && x in minX..maxX && y in minY..maxY && z in minZ..maxZ
+            entity.isCobblemon() && x in minX..maxX && y in minY..maxY && z in minZ..maxZ
         }
     }
 

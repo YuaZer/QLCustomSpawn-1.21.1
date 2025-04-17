@@ -8,7 +8,6 @@ import io.github.yuazer.qlcustomspawn.utils.RandomUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.scheduler.BukkitRunnable
-import taboolib.common.platform.function.submit
 import taboolib.module.configuration.Configuration
 import taboolib.platform.BukkitPlugin
 import top.maplex.arim.Arim
@@ -68,7 +67,7 @@ class SpawnContainer(val name: String, val yamlConfig: Configuration) : BukkitRu
                     return
                 }
                 val pokemonSpec = creater.getRandomSpec()
-                if (pokemonSpec == null) {
+                if (pokemonSpec.isEmpty()) {
                     println("QLCustomSpawn: Container $name Creater $result Spec Not Found!")
                     return
                 }

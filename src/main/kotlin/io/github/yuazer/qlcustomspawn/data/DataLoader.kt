@@ -12,12 +12,12 @@ import java.io.File
 
 object DataLoader {
     fun loadData() {
-        //加载container
-        val containerFolder = newFolder(BukkitPlugin.getInstance().dataFolder, "container")
-        loadContainerFormFolder(containerFolder)
         //加载creater
         val createrFolder = newFolder(BukkitPlugin.getInstance().dataFolder, "creater")
         loadCreaterFormFolder(createrFolder)
+        //加载container
+        val containerFolder = newFolder(BukkitPlugin.getInstance().dataFolder, "container")
+        loadContainerFormFolder(containerFolder)
     }
 
     private fun loadContainer(file: File) {
