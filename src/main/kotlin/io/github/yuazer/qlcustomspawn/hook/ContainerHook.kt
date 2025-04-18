@@ -4,7 +4,7 @@ import io.github.yuazer.qlcustomspawn.api.data.ContainerApi
 import org.bukkit.entity.Player
 import taboolib.platform.compat.PlaceholderExpansion
 
-class ContainerHook:PlaceholderExpansion {
+object ContainerHook:PlaceholderExpansion {
     // 变量前缀
     override val identifier: String = "qlcustomspawn"
 
