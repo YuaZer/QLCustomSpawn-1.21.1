@@ -5,12 +5,16 @@ import io.github.yuazer.qlcustomspawn.api.data.ContainerApi
 import io.github.yuazer.qlcustomspawn.api.data.CreaterApi
 import io.github.yuazer.qlcustomspawn.api.extension.EntityExtension.getLookedLocation
 import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.locToString
+import io.github.yuazer.qlcustomspawn.api.extension.RunnableExtension.getTask
+import io.github.yuazer.qlcustomspawn.api.extension.RunnableExtension.isCancelledNoChecked
+import io.github.yuazer.qlcustomspawn.runnable.ClearRunnable
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import taboolib.common.platform.command.CommandBody
 import taboolib.common.platform.command.CommandHeader
 import taboolib.common.platform.command.subCommand
 import taboolib.expansion.createHelper
+import taboolib.platform.BukkitPlugin
 import taboolib.platform.util.sendLang
 
 @CommandHeader("qlcustomspawn", ["qlcs"])
@@ -21,6 +25,11 @@ object MainCommand {
             Qlcustomspawn.config.reload()
             CreaterApi.getManager().reload()
             ContainerApi.getManager().reloadAll()
+            if (Qlcustomspawn.clearRunnable.getTask() != null && !Qlcustomspawn.clearRunnable.isCancelledNoChecked()) {
+                Qlcustomspawn.clearRunnable.cancel()
+            }
+            Qlcustomspawn.clearRunnable = ClearRunnable("wait")
+            Qlcustomspawn.clearRunnable.runTaskTimerAsynchronously(BukkitPlugin.getInstance(), 0, 20)
             sender.sendLang("reload-message")
         }
     }

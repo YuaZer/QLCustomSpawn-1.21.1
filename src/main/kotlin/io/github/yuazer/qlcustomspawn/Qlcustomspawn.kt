@@ -3,6 +3,7 @@ package io.github.yuazer.qlcustomspawn
 import io.github.yuazer.qlcustomspawn.data.DataLoader
 import io.github.yuazer.qlcustomspawn.manager.ContainerManager
 import io.github.yuazer.qlcustomspawn.manager.CreaterManager
+import io.github.yuazer.qlcustomspawn.runnable.ClearRunnable
 import taboolib.common.LifeCycle
 import taboolib.common.io.newFolder
 import taboolib.common.platform.Awake
@@ -21,7 +22,7 @@ object Qlcustomspawn : Plugin() {
     override fun onEnable() {
 
     }
-
+    lateinit var clearRunnable: ClearRunnable
     @Awake(LifeCycle.ENABLE)
     fun loadPlugin() {
         loadDir()
@@ -30,6 +31,10 @@ object Qlcustomspawn : Plugin() {
         DataLoader.loadData()
         if (config.getBoolean("auto-start")){
             containerManager.reloadAll()
+        }
+        clearRunnable = ClearRunnable(config.getString("clear.mode") ?: "")
+        if (config.getBoolean("clear.auto_start")){
+            clearRunnable.runTaskTimerAsynchronously(BukkitPlugin.getInstance(), 0L, 20L)
         }
         logLoaded()
     }

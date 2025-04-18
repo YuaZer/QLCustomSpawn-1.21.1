@@ -2,3 +2,25 @@
 Lang: "zh_CN"
 #是否开服自动开启所有生成容器
 auto_start: false
+
+#清理精灵模块
+clear:
+  #是否开服自动开启
+  auto_start: false
+  #清理模式: wait(等待) / auto(自动)
+  mode: "wait"
+  #要清理的世界
+  clean_worlds:
+    - "world"
+  #允许的存活时间
+  wait_time: 300
+  #清理间隔(单位:秒)
+  period: 300
+  #白名单条件(满足一条即可)
+  conditions:
+    - "%cobblemon_isShiny% == true"
+    - "%cobblemon_isLegendary% == true"
+  kether:
+    #还剩60秒执行的kether
+    60:
+      - tell "§7[§a§l!§7] §a精灵清理还剩60秒!"
