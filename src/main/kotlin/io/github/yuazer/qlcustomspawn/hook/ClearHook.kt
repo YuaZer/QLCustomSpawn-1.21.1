@@ -11,6 +11,10 @@ object ClearHook:PlaceholderExpansion {
         if (player == null) {
             return "player null"
         }
-        return Qlcustomspawn.clearRunnable.counter.toString()
+        if (args.equals("time",true)){
+            return Qlcustomspawn.clearRunnable.counter.toString()
+        }else{
+            return "args error"
+        }
     }
 }
