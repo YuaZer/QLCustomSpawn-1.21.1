@@ -1,5 +1,7 @@
 package io.github.yuazer.qlcustomspawn
 
+import io.github.yuazer.qlcustomspawn.api.data.ContainerApi
+import io.github.yuazer.qlcustomspawn.api.data.CreaterApi
 import io.github.yuazer.qlcustomspawn.data.DataLoader
 import io.github.yuazer.qlcustomspawn.manager.ContainerManager
 import io.github.yuazer.qlcustomspawn.manager.CreaterManager
@@ -33,6 +35,7 @@ object Qlcustomspawn : Plugin() {
         createrManager = CreaterManager()
         DataLoader.loadData()
         if (config.getBoolean("auto-start")){
+            createrManager.reload()
             containerManager.reloadAll()
         }
         if (config.getBoolean("clear.auto_start")){

@@ -9,7 +9,9 @@ import io.github.yuazer.qlcustomspawn.utils.ConditionParser
 import net.minecraft.world.entity.Entity.RemovalReason
 import org.bukkit.Bukkit
 import org.bukkit.scheduler.BukkitRunnable
+import taboolib.common.platform.function.submit
 import taboolib.common5.util.replace
+import taboolib.platform.BukkitPlugin
 import taboolib.platform.util.onlinePlayers
 import java.util.*
 
@@ -65,22 +67,32 @@ class ClearRunnable(private val mode: String) : BukkitRunnable() {
 
             // ⚠️ 防止 ConcurrentModification：复制一份遍历
             val snapshot = candidates.toList()
-            snapshot.forEach { uid ->
-                val bukkitEntity = Bukkit.getEntity(uid) ?: return@forEach
-                if (!bukkitEntity.isCobblemon()) {              // 如果已不再是 Cobblemon，直接从候选移除
+            for (uid in snapshot) {
+                val bukkitEntity = Bukkit.getEntity(uid)
+                if (bukkitEntity == null || !bukkitEntity.isCobblemon()) {
                     candidates -= uid
-                    return@forEach
+                    continue
                 }
 
                 val pokemon = bukkitEntity.getNMSEntity() as PokemonEntity
                 val conditionParser = ConditionParser(pokemon.pokemon)
-                val shouldKeep = conditionParser.parse(clearConditions, any = true)
+
+                val shouldKeep = try {
+                    conditionParser.parse(clearConditions, any = true)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    true // 出现异常时保留实体，避免误杀
+                }
 
                 if (!shouldKeep) {
                     clearCount++
-                    pokemon.remove(RemovalReason.KILLED)
+                    Bukkit.getScheduler().runTask(BukkitPlugin.getInstance(), Runnable {
+                        if (pokemon.isAlive) {
+                            pokemon.remove(RemovalReason.KILLED)
+                        }
+                    })
                 }
-                candidates -= uid                                // 无论结果如何都移出候选，避免反复判断
+                candidates -= uid
             }
             val kether = Qlcustomspawn.config.getStringList("clear.kether.0")
             if (kether.isNotEmpty()) {

@@ -18,8 +18,8 @@ clear:
   period: 300
   #白名单条件(满足一条即可)
   conditions:
-    - "%pokemon_isShiny% == true"
-    - "%pokemon_isLegendary% == true"
+    - "'%pokemon_isShiny%' == 'true'"
+    - "'%pokemon_isLegendary%' == 'true'"
   kether:
     #还剩60秒执行的kether
     60:
