@@ -3,6 +3,7 @@ package io.github.yuazer.qlcustomspawn.utils
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.pokemon.Pokemon
 import io.github.yuazer.qlcustomspawn.api.extension.NMSExtension.getBukkitItem
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import taboolib.platform.compat.replacePlaceholder
 import top.maplex.arim.Arim
@@ -16,6 +17,8 @@ class ConditionParser(val pokemon: Pokemon) {
         pokemonPlaceholder["%pokemon_level%"] = pokemon.level
         pokemonPlaceholder["%pokemon_gender%"] = pokemon.gender.name
         pokemonPlaceholder["%pokemon_shiny%"] = pokemon.shiny
+        pokemonPlaceholder["%pokemon_isLegendary%"] = pokemon.isLegendary()
+        pokemonPlaceholder["%pokemon_isMythical%"] = pokemon.isMythical()
         pokemonPlaceholder["%pokemon_nature%"] = pokemon.nature.name
         pokemonPlaceholder["%pokemon_ability%"] = pokemon.ability.name
         pokemonPlaceholder["%pokemon_ivs_attack%"] = pokemon.ivs[Stats.ATTACK]!!
@@ -44,6 +47,8 @@ class ConditionParser(val pokemon: Pokemon) {
         pokemonPlaceholder["%pokemon_stats_special_defense%"] = pokemon.getStat(Stats.SPECIAL_DEFENCE)
         pokemonPlaceholder["%pokemon_exp%"] = pokemon.experience
         pokemonPlaceholder["%pokemon_held_item%"] = pokemon.heldItem().copy().getBukkitItem()?.type?.name ?: "null"
+        pokemonPlaceholder["%pokemon_world%"] =
+            pokemon.entity?.uuid?.let { Bukkit.getEntity(it)?.world?.name ?: "null" } ?: "null"
     }
 
     fun parse(condition: String): Boolean {
@@ -60,18 +65,19 @@ class ConditionParser(val pokemon: Pokemon) {
         return Arim.evaluator.evaluate(condition.replacePlaceholder(player))
     }
 
-    fun parse(condition: List<String>,any:Boolean = false): Boolean {
-        return if (any){
+    fun parse(condition: List<String>, any: Boolean = false): Boolean {
+        return if (any) {
             condition.any { parse(it) }
-        }else{
+        } else {
             condition.all { parse(it) }
         }
     }
-    fun parseWithPlayer(condition: List<String>, player: Player,any:Boolean = false): Boolean {
-        return if (any){
-            condition.any { parseWithPlayer(it,player) }
-        }else{
-            condition.all { parseWithPlayer(it,player) }
+
+    fun parseWithPlayer(condition: List<String>, player: Player, any: Boolean = false): Boolean {
+        return if (any) {
+            condition.any { parseWithPlayer(it, player) }
+        } else {
+            condition.all { parseWithPlayer(it, player) }
         }
     }
 }

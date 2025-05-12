@@ -23,6 +23,9 @@ object Qlcustomspawn : Plugin() {
 
     }
     lateinit var clearRunnable: ClearRunnable
+    fun isRunnableInitialized(): Boolean {
+        return ::clearRunnable.isInitialized
+    }
     @Awake(LifeCycle.ENABLE)
     fun loadPlugin() {
         loadDir()
@@ -32,8 +35,8 @@ object Qlcustomspawn : Plugin() {
         if (config.getBoolean("auto-start")){
             containerManager.reloadAll()
         }
-        clearRunnable = ClearRunnable(config.getString("clear.mode") ?: "")
         if (config.getBoolean("clear.auto_start")){
+            clearRunnable = ClearRunnable(config.getString("clear.mode") ?: "")
             clearRunnable.runTaskTimerAsynchronously(BukkitPlugin.getInstance(), 0L, 20L)
         }
         logLoaded()

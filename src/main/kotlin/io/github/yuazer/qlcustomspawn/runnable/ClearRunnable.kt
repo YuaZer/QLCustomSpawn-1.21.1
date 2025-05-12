@@ -9,6 +9,7 @@ import io.github.yuazer.qlcustomspawn.utils.ConditionParser
 import net.minecraft.world.entity.Entity.RemovalReason
 import org.bukkit.Bukkit
 import org.bukkit.scheduler.BukkitRunnable
+import taboolib.common5.util.replace
 import taboolib.platform.util.onlinePlayers
 import java.util.*
 
@@ -50,6 +51,7 @@ class ClearRunnable(private val mode: String) : BukkitRunnable() {
         val timeList = Qlcustomspawn.config.getConfigurationSection("clear.kether")?.getKeys(false)
         timeList?.let {
             if (it.isNotEmpty() && it.contains(counter.toString())) {
+                if (counter == 0) return@let
                 val kether = Qlcustomspawn.config.getStringList("clear.kether.${counter}")
                 onlinePlayers.forEach { player ->
                     kether.runKether(player)
@@ -58,6 +60,7 @@ class ClearRunnable(private val mode: String) : BukkitRunnable() {
         }
         // 2. 每到周期终点，对候选集做一次真正清理
         if (--counter <= 0) {
+            var clearCount = 0
             counter = periodSeconds                               // 重置周期
 
             // ⚠️ 防止 ConcurrentModification：复制一份遍历
@@ -74,9 +77,16 @@ class ClearRunnable(private val mode: String) : BukkitRunnable() {
                 val shouldKeep = conditionParser.parse(clearConditions, any = true)
 
                 if (!shouldKeep) {
+                    clearCount++
                     pokemon.remove(RemovalReason.KILLED)
                 }
                 candidates -= uid                                // 无论结果如何都移出候选，避免反复判断
+            }
+            val kether = Qlcustomspawn.config.getStringList("clear.kether.0")
+            if (kether.isNotEmpty()) {
+                onlinePlayers.forEach { player ->
+                    kether.replace(Pair("%count%", clearCount.toString())).runKether(player)
+                }
             }
         }
     }

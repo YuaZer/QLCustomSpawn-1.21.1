@@ -25,7 +25,7 @@ object MainCommand {
             Qlcustomspawn.config.reload()
             CreaterApi.getManager().reload()
             ContainerApi.getManager().reloadAll()
-            if (Qlcustomspawn.clearRunnable.getTask() != null && !Qlcustomspawn.clearRunnable.isCancelledNoChecked()) {
+            if (Qlcustomspawn.isRunnableInitialized()) {
                 Qlcustomspawn.clearRunnable.cancel()
             }
             Qlcustomspawn.clearRunnable = ClearRunnable("wait")
