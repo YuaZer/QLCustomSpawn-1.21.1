@@ -78,7 +78,7 @@ class ClearRunnable(private val mode: String) : BukkitRunnable() {
                 val conditionParser = ConditionParser(pokemon.pokemon)
 
                 val shouldKeep = try {
-                    conditionParser.parse(clearConditions, any = true)
+                    conditionParser.parse(clearConditions, any = true)||pokemon.isBusy||pokemon.isBattling||pokemon.pokemon.isPlayerOwned()
                 } catch (e: Exception) {
                     e.printStackTrace()
                     true // 出现异常时保留实体，避免误杀

@@ -22,13 +22,31 @@ object LocationExtension {
      */
     fun String.toLocation(): Location? {
         val parts = this.split(",")
-        if (parts.size < 6) return null
+        if (parts.size < 6) {
+            println("参数数量少于6")
+            return null
+        }
 
-        val world = Bukkit.getWorld(parts[0]) ?: return null
-
-        val x = parts[1].toDoubleOrNull() ?: return null
-        val y = parts[2].toDoubleOrNull() ?: return null
-        val z = parts[3].toDoubleOrNull() ?: return null
+        val world = Bukkit.getWorld(parts[0])
+        if (world == null) {
+            println("世界不存在")
+            return null
+        }
+        val x = parts[1].toDoubleOrNull()
+        if (x == null) {
+            println("x坐标错误")
+            return null
+        }
+        val y = parts[2].toDoubleOrNull()
+        if (y == null) {
+            println("y坐标错误")
+            return null
+        }
+        val z = parts[3].toDoubleOrNull()
+        if (z == null) {
+            println("z坐标错误")
+            return null
+        }
         val yaw = parts[4].toFloatOrNull() ?: 0f
         val pitch = parts[5].toFloatOrNull() ?: 0f
 

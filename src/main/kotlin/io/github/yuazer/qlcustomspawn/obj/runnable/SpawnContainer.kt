@@ -8,6 +8,7 @@ import io.github.yuazer.qlcustomspawn.utils.RandomUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.scheduler.BukkitRunnable
+import taboolib.common.platform.function.onlinePlayers
 import taboolib.module.configuration.Configuration
 import taboolib.platform.BukkitPlugin
 import top.maplex.arim.Arim
@@ -17,7 +18,6 @@ class SpawnContainer(val name: String, val yamlConfig: Configuration) : BukkitRu
     var locationB: Location
     var period: Int
     var timeCount: Int
-        get() = field
     var spawner: MutableMap<String, Double>
 
     init {
@@ -52,10 +52,13 @@ class SpawnContainer(val name: String, val yamlConfig: Configuration) : BukkitRu
                                     LocationUtils.getCobblemonInArea(locationA, locationB).toString()
                                 )
                         )
-                    }) {
+                    }&& onlinePlayers().isNotEmpty()) {
                     canSpawn = true
+                } else {
+                    println("count: ${LocationUtils.getCobblemonInArea(locationA, locationB)}")
+                    canSpawn = false
                 }
-            } else {
+            }else{
                 canSpawn = true
             }
             if (canSpawn) {

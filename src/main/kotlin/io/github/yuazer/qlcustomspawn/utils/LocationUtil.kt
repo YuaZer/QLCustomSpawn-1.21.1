@@ -11,9 +11,20 @@ object LocationUtils {
 
     fun getCobblemonInArea(loc1: Location, loc2: Location): Int {
         // 两个点必须在同一个世界
-        if (loc1.world != loc2.world) return 0
+        if (loc1.world==null||loc2.world==null) {
+            println("两个点必须在同一个世界1")
+            return 0
+        }
+        if (!loc1.world!!.name.equals(loc2.world!!.name,true) ){
+            println("两个点必须在同一个世界2")
+            return 0
+        }
 
-        val world = loc1.world ?: return 0
+        val world = loc1.world
+        if (world==null){
+            println("loc1世界为空")
+            return 0
+        }
 
         // 获取边界范围
         val minX = minOf(loc1.x, loc2.x)

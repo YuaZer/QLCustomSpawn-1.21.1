@@ -6,11 +6,13 @@ import io.github.yuazer.qlcustomspawn.data.DataLoader
 import io.github.yuazer.qlcustomspawn.manager.ContainerManager
 import io.github.yuazer.qlcustomspawn.manager.CreaterManager
 import io.github.yuazer.qlcustomspawn.runnable.ClearRunnable
+import kotlinx.coroutines.delay
 import taboolib.common.LifeCycle
 import taboolib.common.io.newFolder
 import taboolib.common.platform.Awake
 import taboolib.common.platform.Plugin
 import taboolib.common.platform.function.releaseResourceFolder
+import taboolib.common.platform.function.submit
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.ConfigFile
 import taboolib.platform.BukkitPlugin
@@ -35,12 +37,17 @@ object Qlcustomspawn : Plugin() {
         createrManager = CreaterManager()
         DataLoader.loadData()
         if (config.getBoolean("auto-start")){
-            createrManager.reload()
-            containerManager.reloadAll()
+            submit(delay = 20L) {
+                createrManager.reload()
+                containerManager.reloadAll()
+            }
         }
-        if (config.getBoolean("clear.auto_start")){
+        if (config.getBoolean("clear.auto_start")|| config.getString("clear.auto_start")?.equals("true",true) == true){
             clearRunnable = ClearRunnable(config.getString("clear.mode") ?: "")
             clearRunnable.runTaskTimerAsynchronously(BukkitPlugin.getInstance(), 0L, 20L)
+        }else{
+            println("auto start:${config.getBoolean("clear.auto_start")}")
+            println("auto start_string:${config.getString("clear.auto_start")?.equals("true",true) == true}")
         }
         logLoaded()
     }
