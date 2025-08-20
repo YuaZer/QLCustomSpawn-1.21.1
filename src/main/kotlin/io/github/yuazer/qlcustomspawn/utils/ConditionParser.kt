@@ -3,36 +3,39 @@ package io.github.yuazer.qlcustomspawn.utils
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.pokemon.Pokemon
 import io.github.yuazer.qlcustomspawn.api.extension.NMSExtension.getBukkitItem
+import io.github.yuazer.qlcustomspawn.utils.CobbleUtils.hasHiddenAbility
+import io.github.yuazer.qlcustomspawn.utils.CobbleUtils.isHiddenAbility
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import taboolib.platform.compat.replacePlaceholder
 import top.maplex.arim.Arim
 
 class ConditionParser(val pokemon: Pokemon) {
-    lateinit var pokemonPlaceholder: MutableMap<String, Any>
+    var pokemonPlaceholder: MutableMap<String, Any> = mutableMapOf()
 
     init {
-        pokemonPlaceholder = mutableMapOf()
         pokemonPlaceholder["%pokemon_name%"] = pokemon.species.name
         pokemonPlaceholder["%pokemon_level%"] = pokemon.level
+        pokemonPlaceholder["%pokemon_hasmt%"] = pokemon.hasHiddenAbility()
+        pokemonPlaceholder["%pokemon_ismt%"] = pokemon.isHiddenAbility()
         pokemonPlaceholder["%pokemon_gender%"] = pokemon.gender.name
         pokemonPlaceholder["%pokemon_shiny%"] = pokemon.shiny
         pokemonPlaceholder["%pokemon_isLegendary%"] = pokemon.isLegendary()
         pokemonPlaceholder["%pokemon_isMythical%"] = pokemon.isMythical()
         pokemonPlaceholder["%pokemon_nature%"] = pokemon.nature.name
         pokemonPlaceholder["%pokemon_ability%"] = pokemon.ability.name
-        pokemonPlaceholder["%pokemon_ivs_attack%"] = pokemon.ivs[Stats.ATTACK]!!
-        pokemonPlaceholder["%pokemon_ivs_defense%"] = pokemon.ivs[Stats.DEFENCE]!!
-        pokemonPlaceholder["%pokemon_ivs_hp%"] = pokemon.ivs[Stats.HP]!!
-        pokemonPlaceholder["%pokemon_ivs_speed%"] = pokemon.ivs[Stats.SPEED]!!
-        pokemonPlaceholder["%pokemon_ivs_special_attack%"] = pokemon.ivs[Stats.SPECIAL_ATTACK]!!
-        pokemonPlaceholder["%pokemon_ivs_special_defense%"] = pokemon.ivs[Stats.SPECIAL_DEFENCE]!!
-        pokemonPlaceholder["%pokemon_evs_attack%"] = pokemon.evs[Stats.ATTACK]!!
-        pokemonPlaceholder["%pokemon_evs_defense%"] = pokemon.evs[Stats.DEFENCE]!!
-        pokemonPlaceholder["%pokemon_evs_hp%"] = pokemon.evs[Stats.HP]!!
-        pokemonPlaceholder["%pokemon_evs_speed%"] = pokemon.evs[Stats.SPEED]!!
-        pokemonPlaceholder["%pokemon_evs_special_attack%"] = pokemon.evs[Stats.SPECIAL_ATTACK]!!
-        pokemonPlaceholder["%pokemon_evs_special_defense%"] = pokemon.evs[Stats.SPECIAL_DEFENCE]!!
+        pokemonPlaceholder["%pokemon_ivs_attack%"] = pokemon.ivs[Stats.ATTACK]?:0
+        pokemonPlaceholder["%pokemon_ivs_defense%"] = pokemon.ivs[Stats.DEFENCE]?:0
+        pokemonPlaceholder["%pokemon_ivs_hp%"] = pokemon.ivs[Stats.HP]?:0
+        pokemonPlaceholder["%pokemon_ivs_speed%"] = pokemon.ivs[Stats.SPEED]?:0
+        pokemonPlaceholder["%pokemon_ivs_special_attack%"] = pokemon.ivs[Stats.SPECIAL_ATTACK]?:0
+        pokemonPlaceholder["%pokemon_ivs_special_defense%"] = pokemon.ivs[Stats.SPECIAL_DEFENCE]?:0
+        pokemonPlaceholder["%pokemon_evs_attack%"] = pokemon.evs[Stats.ATTACK]?:0
+        pokemonPlaceholder["%pokemon_evs_defense%"] = pokemon.evs[Stats.DEFENCE]?:0
+        pokemonPlaceholder["%pokemon_evs_hp%"] = pokemon.evs[Stats.HP]?:0
+        pokemonPlaceholder["%pokemon_evs_speed%"] = pokemon.evs[Stats.SPEED]?:0
+        pokemonPlaceholder["%pokemon_evs_special_attack%"] = pokemon.evs[Stats.SPECIAL_ATTACK]?:0
+        pokemonPlaceholder["%pokemon_evs_special_defense%"] = pokemon.evs[Stats.SPECIAL_DEFENCE]?:0
         pokemonPlaceholder["%pokemon_moves_0%"] = pokemon.moveSet[0]?.name ?: "null"
         pokemonPlaceholder["%pokemon_moves_1%"] = pokemon.moveSet[1]?.name ?: "null"
         pokemonPlaceholder["%pokemon_moves_2%"] = pokemon.moveSet[2]?.name ?: "null"

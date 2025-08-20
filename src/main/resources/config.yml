@@ -6,20 +6,22 @@ auto_start: false
 #清理精灵模块
 clear:
   #是否开服自动开启
-  auto_start: false
+  auto_start: true
   #清理模式: wait(等待) / auto(自动)
   mode: "wait"
   #要清理的世界
   clean_worlds:
     - "world"
   #允许的存活时间
-  wait_time: 300
+  wait_time: 1800
   #清理间隔(单位:秒)
   period: 300
   #白名单条件(满足一条即可)
   conditions:
-    - "'%pokemon_isShiny%' == 'true'"
+    - "'%pokemon_shiny%' == 'true'"
     - "'%pokemon_isLegendary%' == 'true'"
+    - "'%pokemon_isMythical%' == 'true'"
+    - "'%pokemon_ismt%' == 'true'"
   kether:
     #还剩60秒执行的kether
     60:
