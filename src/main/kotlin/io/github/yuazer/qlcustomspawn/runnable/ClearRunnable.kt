@@ -31,8 +31,6 @@ class ClearRunnable(private val mode: String) : BukkitRunnable() {
     private val candidates = LinkedHashSet<UUID>()
 
     override fun run() {
-        if (!mode.equals("wait", ignoreCase = true)) return
-
         submit {
             tick()
         }

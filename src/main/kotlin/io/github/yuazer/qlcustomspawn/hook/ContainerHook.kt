@@ -13,8 +13,12 @@ object ContainerHook : PlaceholderExpansion {
         if (player == null) {
             return "player null"
         }
-        val containerName = args.split("<>")[0]
-        val request = args.split("<>")[1]
+        val parts = args.split("<>", limit = 2)
+        if (parts.size < 2) {
+            return "args error"
+        }
+        val containerName = parts[0]
+        val request = parts[1]
         return ContainerApi.getManager().get(containerName)?.let {
             when (request) {
                 "name" -> it.name
@@ -22,6 +26,6 @@ object ContainerHook : PlaceholderExpansion {
                 "timeCount" -> it.countDown.toString()
                 else -> "null"
             }
-        } ?: "null"
+        } ?: "0"
     }
 }
