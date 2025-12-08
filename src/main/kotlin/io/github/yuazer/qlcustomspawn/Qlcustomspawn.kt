@@ -45,7 +45,7 @@ object Qlcustomspawn : Plugin() {
         DataLoader.loadData()
         createrManager.reload()
         containerManager.reloadAll()
-        if (config.getBoolean("auto-start")){
+        if (config.getBoolean("auto_start")){
             submit(delay = 20L) {
                 containerManager.startAll()
             }
