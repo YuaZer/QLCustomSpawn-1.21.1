@@ -65,7 +65,7 @@ object MainCommand {
     val getspawner = subCommand {
         execute<CommandSender> { sender, context, argument ->
             if (sender is Player) {
-                ContainerApi.getManager().values().filter { sender.isInArea(it.locationA, it.locationB) }
+                ContainerApi.getManager().values().filter { sender.isInArea(it.area.pointA, it.area.pointB) }
                     .forEach {
                         sender.sendMessage(it.toString())
                         println(it.toString())

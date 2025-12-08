@@ -18,8 +18,8 @@ object ContainerHook : PlaceholderExpansion {
         return ContainerApi.getManager().get(containerName)?.let {
             when (request) {
                 "name" -> it.name
-                "period" -> it.period.toString()
-                "timeCount" -> it.timeCount.toString()
+                "period" -> it.periodSeconds.toString()
+                "timeCount" -> it.countDown.toString()
                 else -> "null"
             }
         } ?: "null"

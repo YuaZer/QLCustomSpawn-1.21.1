@@ -17,14 +17,14 @@ import top.maplex.arim.Arim
  */
 class SpawnContainer private constructor(
     val name: String,
-    private val area: SpawnArea,
-    private val periodSeconds: Int,
-    private val spawner: Map<String, Double>,
-    private val conditions: List<String>
+     val area: SpawnArea,
+     val periodSeconds: Int,
+     val spawner: Map<String, Double>,
+     val conditions: List<String>
 ) : BukkitRunnable() {
 
     private val logger = BukkitPlugin.getInstance().logger
-    private var countDown = periodSeconds
+     var countDown = periodSeconds
 
     override fun run() {
         if (--countDown > 0) {
