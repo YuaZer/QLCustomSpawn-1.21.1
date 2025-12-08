@@ -7,6 +7,7 @@ import io.github.yuazer.qlcustomspawn.manager.ContainerManager
 import io.github.yuazer.qlcustomspawn.manager.CreaterManager
 import io.github.yuazer.qlcustomspawn.runnable.ClearRunnable
 import kotlinx.coroutines.delay
+import org.bukkit.Bukkit
 import taboolib.common.LifeCycle
 import taboolib.common.io.newFolder
 import taboolib.common.platform.Awake
@@ -33,13 +34,20 @@ object Qlcustomspawn : Plugin() {
     @Awake(LifeCycle.ENABLE)
     fun loadPlugin() {
         loadDir()
+        logLoaded()
+        Bukkit.getScheduler().runTaskLater(BukkitPlugin.getInstance(), Runnable {
+            loadFinal()
+        },1L)
+    }
+    fun loadFinal(){
         containerManager = ContainerManager(BukkitPlugin.getInstance())
         createrManager = CreaterManager()
         DataLoader.loadData()
+        createrManager.reload()
+        containerManager.reloadAll()
         if (config.getBoolean("auto-start")){
             submit(delay = 20L) {
-                createrManager.reload()
-                containerManager.reloadAll()
+                containerManager.startAll()
             }
         }
         if (config.getBoolean("clear.auto_start")|| config.getString("clear.auto_start")?.equals("true",true) == true){
@@ -49,7 +57,6 @@ object Qlcustomspawn : Plugin() {
             println("auto start:${config.getBoolean("clear.auto_start")}")
             println("auto start_string:${config.getString("clear.auto_start")?.equals("true",true) == true}")
         }
-        logLoaded()
     }
 
     @Awake(LifeCycle.DISABLE)

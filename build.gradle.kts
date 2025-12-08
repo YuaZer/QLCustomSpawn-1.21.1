@@ -6,7 +6,7 @@ plugins {
     java
     kotlin("jvm") version "2.1.20"
     id("fabric-loom") version "1.9.1"
-    id("io.izzel.taboolib") version "2.0.22"
+    id("io.izzel.taboolib") version "2.0.27"
     id("maven-publish")
 }
 
@@ -59,7 +59,7 @@ taboolib {
             name("PlaceholderAPI")
         }
     }
-    version { taboolib = "6.2.3"
+    version { taboolib = "6.2.3-664550e"
         isSkipKotlinRelocate = true
         isSkipKotlin = true
     }

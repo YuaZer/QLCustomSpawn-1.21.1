@@ -72,6 +72,5 @@ class ContainerManager(val plugin: JavaPlugin) {
     fun reloadAll() {
         clear()
         DataLoader.loadContainerFormFolder(newFolder(BukkitPlugin.getInstance().dataFolder, "container"))
-        startAll()
     }
 }
