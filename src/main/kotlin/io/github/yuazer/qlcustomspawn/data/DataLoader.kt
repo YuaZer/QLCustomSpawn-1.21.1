@@ -23,8 +23,10 @@ object DataLoader {
     private fun loadContainer(file: File) {
         val yamlConfiguration = Configuration.loadFromFile(file, Type.YAML)
         val name = file.name.replace(".yml", "")
-        val spawnContainer = SpawnContainer(name, yamlConfiguration)
-        ContainerApi.getManager().add(spawnContainer)
+        val spawnContainer = SpawnContainer.fromConfiguration(name, yamlConfiguration)
+        if (spawnContainer != null) {
+            ContainerApi.getManager().add(spawnContainer)
+        }
     }
 
     //递归读取子文件夹配置文件

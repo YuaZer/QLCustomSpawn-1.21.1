@@ -5,7 +5,6 @@ import io.github.yuazer.qlcustomspawn.api.extension.CobbleExtension.createPokemo
 import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.toLocation
 import io.github.yuazer.qlcustomspawn.utils.LocationUtils
 import io.github.yuazer.qlcustomspawn.utils.RandomUtils
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.scheduler.BukkitRunnable
 import taboolib.common.platform.function.onlinePlayers
@@ -13,79 +12,137 @@ import taboolib.module.configuration.Configuration
 import taboolib.platform.BukkitPlugin
 import top.maplex.arim.Arim
 
-class SpawnContainer(val name: String, val yamlConfig: Configuration) : BukkitRunnable() {
-    var locationA: Location
-    var locationB: Location
-    var period: Int
-    var timeCount: Int
-    var spawner: MutableMap<String, Double>
+/**
+ * 负责读取配置并定时生成宝可梦的容器。
+ */
+class SpawnContainer private constructor(
+    val name: String,
+    private val area: SpawnArea,
+    private val periodSeconds: Int,
+    private val spawner: Map<String, Double>,
+    private val conditions: List<String>
+) : BukkitRunnable() {
 
-    init {
-        locationA = yamlConfig.getString("location1")?.toLocation()!!
-        locationB = yamlConfig.getString("location2")?.toLocation()!!
-        period = yamlConfig.getInt("period")
-        timeCount = yamlConfig.getInt("period")
-        spawner = mutableMapOf()
-        yamlConfig.getConfigurationSection("spawner")!!.getKeys(false).forEach {
-            spawner[it] = yamlConfig.getDouble("spawner.$it")
-        }
-    }
+    private val logger = BukkitPlugin.getInstance().logger
+    private var countDown = periodSeconds
 
     override fun run() {
-        if (timeCount <= 0) {
-            //TODO 刷新精灵
-            val conditions = yamlConfig.getStringList("conditions")
-            var canSpawn = false
-            if (conditions.isNotEmpty()) {
-                //TODO 满足条件
-                if (conditions.all {
-                        Arim.evaluator.evaluate(
-                            it
-                                .replace("%location1_x%", locationA.x.toString())
-                                .replace("%location1_y%", locationA.y.toString())
-                                .replace("%location1_z%", locationA.z.toString())
-                                .replace("%location2_x%", locationB.x.toString())
-                                .replace("%location2_y%", locationB.y.toString())
-                                .replace("%location2_z%", locationB.z.toString())
-                                .replace(
-                                    "%cobblemon_count%",
-                                    LocationUtils.getCobblemonInArea(locationA, locationB).toString()
-                                )
-                        )
-                    }&& onlinePlayers().isNotEmpty()) {
-                    canSpawn = true
-                } else {
-//                    println("count: ${LocationUtils.getCobblemonInArea(locationA, locationB)}")
-                    canSpawn = false
-                }
-            }else{
-                canSpawn = true
-            }
-            if (canSpawn) {
-                val result = RandomUtils.pickByWeight(spawner)
-                //TODO 根据名称获取生成器,然后获取Pokemon对象
-                val creater = CreaterApi.getManager().get(result!!)
-                if (!CreaterApi.getManager().contains(creater!!.name)) {
-                    println("QLCustomSpawn: Container $name Creater $result Not Found!")
-                    return
-                }
-                val pokemonSpec = creater.getRandomSpec()
-                if (pokemonSpec.isEmpty()) {
-                    println("QLCustomSpawn: Container $name Creater $result Spec Not Found!")
-                    return
-                }
-                val randomGroundLocation = LocationUtils.getRandomGroundLocation(locationA, locationB) ?: return
-                Bukkit.getScheduler().runTask(BukkitPlugin.getInstance(), Runnable {
-                    pokemonSpec.createPokemon(randomGroundLocation)
-                })
-            }
-            //重置时间
-            timeCount = period
+        if (--countDown > 0) {
             return
         }
-        timeCount--
+
+        countDown = periodSeconds
+
+        if (!area.isWorldAvailable()) {
+            logger.warning("[QLCustomSpawn] 容器 $name 所在世界未就绪，跳过本次生成")
+            return
+        }
+
+        if (!canSpawn()) {
+            return
+        }
+
+        val createrKey = RandomUtils.pickByWeight(spawner)
+        if (createrKey.isNullOrEmpty()) {
+            logger.warning("[QLCustomSpawn] 容器 $name 的生成表为空或权重异常，已跳过")
+            return
+        }
+
+        val creater = CreaterApi.getManager().get(createrKey)
+        if (creater == null) {
+            logger.warning("[QLCustomSpawn] 容器 $name 绑定的生成器 $createrKey 未找到")
+            return
+        }
+
+        val pokemonSpec = creater.getRandomSpec()
+        if (pokemonSpec.isEmpty()) {
+            logger.warning("[QLCustomSpawn] 容器 $name 的生成器 $createrKey 未提供可用的 spec")
+            return
+        }
+
+        val spawnLocation = area.randomGroundLocation()
+        if (spawnLocation == null) {
+            logger.warning("[QLCustomSpawn] 容器 $name 未找到可用的地面坐标，已跳过本次生成")
+            return
+        }
+
+        pokemonSpec.createPokemon(spawnLocation)
     }
+
+    private fun canSpawn(): Boolean {
+        if (conditions.isEmpty()) {
+            return true
+        }
+
+        val cobblemonCount = LocationUtils.getCobblemonInArea(area.pointA, area.pointB)
+        val replaceMap = mapOf(
+            "%location1_x%" to area.pointA.x.toString(),
+            "%location1_y%" to area.pointA.y.toString(),
+            "%location1_z%" to area.pointA.z.toString(),
+            "%location2_x%" to area.pointB.x.toString(),
+            "%location2_y%" to area.pointB.y.toString(),
+            "%location2_z%" to area.pointB.z.toString(),
+            "%cobblemon_count%" to cobblemonCount.toString()
+        )
+
+        return conditions.all { condition ->
+            val expression = replaceMap.entries.fold(condition) { acc, entry ->
+                acc.replace(entry.key, entry.value)
+            }
+            Arim.evaluator.evaluate(expression)
+        } && onlinePlayers().isNotEmpty()
+    }
+
     override fun toString(): String {
-        return "SpawnContainer(name=$name, locationA=$locationA, locationB=$locationB, period=$period, timeCount=$timeCount, spawner=$spawner)"
+        return "SpawnContainer(name=$name, area=$area, periodSeconds=$periodSeconds, spawner=$spawner)"
+    }
+
+    data class SpawnArea(val pointA: Location, val pointB: Location) {
+        fun isWorldAvailable(): Boolean {
+            val worldA = pointA.world
+            val worldB = pointB.world
+            return worldA != null && worldB != null && worldA.name.equals(worldB.name, true)
+        }
+
+        fun randomGroundLocation(): Location? {
+            return if (isWorldAvailable()) {
+                LocationUtils.getRandomGroundLocation(pointA, pointB)
+            } else null
+        }
+    }
+
+    companion object {
+        fun fromConfiguration(name: String, config: Configuration): SpawnContainer? {
+            val logger = BukkitPlugin.getInstance().logger
+
+            val locationA = config.getString("location1")?.toLocation()
+            val locationB = config.getString("location2")?.toLocation()
+
+            if (locationA == null || locationB == null) {
+                logger.warning("[QLCustomSpawn] 容器 $name 的坐标无效，已跳过加载")
+                return null
+            }
+
+            val period = config.getInt("period").coerceAtLeast(1)
+            val conditionList = config.getStringList("conditions")
+
+            val spawnerSection = config.getConfigurationSection("spawner")
+            val spawnerMap = spawnerSection?.getKeys(false)?.associateWith { key ->
+                config.getDouble("spawner.$key")
+            }?.filterValues { it > 0.0 }
+
+            if (spawnerMap.isNullOrEmpty()) {
+                logger.warning("[QLCustomSpawn] 容器 $name 缺少 spawner 配置或权重无效")
+                return null
+            }
+
+            return SpawnContainer(
+                name = name,
+                area = SpawnArea(locationA, locationB),
+                periodSeconds = period,
+                spawner = spawnerMap,
+                conditions = conditionList
+            )
+        }
     }
 }

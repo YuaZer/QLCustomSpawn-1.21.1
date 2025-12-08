@@ -24,7 +24,7 @@ class ContainerManager(val plugin: JavaPlugin) {
     }
 
     fun start(name: String, delay: Long = 0L, period: Long = 20L) {
-        containers[name]?.runTaskTimerAsynchronously(plugin, delay, period)
+        containers[name]?.runTaskTimer(plugin, delay, period)
     }
 
     // 删除（并取消任务）
