@@ -4,11 +4,26 @@ import io.github.yuazer.qlcustomspawn.api.extension.EntityExtension.isCobblemon
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
+import org.bukkit.entity.Entity
 import kotlin.random.Random
 
 object LocationUtils {
-
-
+    fun Entity.isInArea(loc1: Location, loc2: Location): Boolean {
+        return this.location.isInArea(loc1, loc2)
+    }
+    fun Location.isInArea(loc1: Location, loc2: Location): Boolean {
+        if (this.world==null||loc1.world==null||loc2.world==null) {
+            println("两个点必须在同一个世界")
+            return false
+        }
+        val minX = minOf(loc1.x, loc2.x)
+        val maxX = maxOf(loc1.x, loc2.x)
+        val minY = minOf(loc1.y, loc2.y)
+        val maxY = maxOf(loc1.y, loc2.y)
+        val minZ = minOf(loc1.z, loc2.z)
+        val maxZ = maxOf(loc1.z, loc2.z)
+        return this.x in minX..maxX && this.y in minY..maxY && this.z in minZ..maxZ
+    }
     fun getCobblemonInArea(loc1: Location, loc2: Location): Int {
         // 两个点必须在同一个世界
         if (loc1.world==null||loc2.world==null) {

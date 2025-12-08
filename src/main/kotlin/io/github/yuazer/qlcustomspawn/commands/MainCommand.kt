@@ -8,6 +8,7 @@ import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.locToStrin
 import io.github.yuazer.qlcustomspawn.api.extension.RunnableExtension.getTask
 import io.github.yuazer.qlcustomspawn.api.extension.RunnableExtension.isCancelledNoChecked
 import io.github.yuazer.qlcustomspawn.runnable.ClearRunnable
+import io.github.yuazer.qlcustomspawn.utils.LocationUtils.isInArea
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import taboolib.common.platform.command.CommandBody
@@ -56,6 +57,19 @@ object MainCommand {
                 sender.sendLang("你所看向的Location的信息是:")
                 sender.getLookedLocation(10)?.let { sender.sendMessage(it.locToString()) }
                     ?: sender.sendLang("没有检测到你看向的方块")
+            }
+        }
+    }
+
+    @CommandBody(permission = "qlcustomspawn.getspawner")
+    val getspawner = subCommand {
+        execute<CommandSender> { sender, context, argument ->
+            if (sender is Player) {
+                ContainerApi.getManager().values().filter { sender.isInArea(it.locationA, it.locationB) }
+                    .forEach {
+                        sender.sendMessage(it.toString())
+                        println(it.toString())
+                    }
             }
         }
     }

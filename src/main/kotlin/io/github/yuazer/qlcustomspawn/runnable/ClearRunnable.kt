@@ -92,7 +92,7 @@ class ClearRunnable(private val mode: String) : BukkitRunnable() {
                     onlinePlayers.forEach { player ->
                         kether.replace(Pair("%count%", clearCount.toString())).runKether(player)
                     }
-                    cancel()
+//                    cancel()
                 }
             }
         }

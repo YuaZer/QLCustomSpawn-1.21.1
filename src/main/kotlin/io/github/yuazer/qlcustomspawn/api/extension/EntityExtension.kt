@@ -1,15 +1,16 @@
 package io.github.yuazer.qlcustomspawn.api.extension
 
-import net.minecraft.core.BlockPos
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import org.bukkit.FluidCollisionMode
 import org.bukkit.Location
 import org.bukkit.block.Block
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftEntity
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 
 object EntityExtension {
     fun Entity.isCobblemon():Boolean{
-        return this.type.key.namespace.equals("cobblemon",true)
+        return (this as CraftEntity).handle is PokemonEntity
     }
     /** 默认最大距离（方块数）。 */
     private const val DEFAULT_MAX_DISTANCE = 10

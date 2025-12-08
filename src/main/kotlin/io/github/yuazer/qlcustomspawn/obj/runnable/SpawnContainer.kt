@@ -55,7 +55,7 @@ class SpawnContainer(val name: String, val yamlConfig: Configuration) : BukkitRu
                     }&& onlinePlayers().isNotEmpty()) {
                     canSpawn = true
                 } else {
-                    println("count: ${LocationUtils.getCobblemonInArea(locationA, locationB)}")
+//                    println("count: ${LocationUtils.getCobblemonInArea(locationA, locationB)}")
                     canSpawn = false
                 }
             }else{
@@ -84,5 +84,8 @@ class SpawnContainer(val name: String, val yamlConfig: Configuration) : BukkitRu
             return
         }
         timeCount--
+    }
+    override fun toString(): String {
+        return "SpawnContainer(name=$name, locationA=$locationA, locationB=$locationB, period=$period, timeCount=$timeCount, spawner=$spawner)"
     }
 }
