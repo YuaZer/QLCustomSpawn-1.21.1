@@ -1,5 +1,7 @@
 #语言文件
 Lang: "zh_CN"
+#调试模式
+debug: false
 #是否开服自动开启所有生成容器
 auto_start: false
 

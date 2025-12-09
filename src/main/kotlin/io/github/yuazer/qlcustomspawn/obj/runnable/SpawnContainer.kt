@@ -1,5 +1,6 @@
 package io.github.yuazer.qlcustomspawn.obj.runnable
 
+import io.github.yuazer.qlcustomspawn.Qlcustomspawn
 import io.github.yuazer.qlcustomspawn.api.data.CreaterApi
 import io.github.yuazer.qlcustomspawn.api.extension.CobbleExtension.createPokemon
 import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.toLocation
@@ -24,6 +25,8 @@ class SpawnContainer private constructor(
 ) : BukkitRunnable() {
 
     private val logger = BukkitPlugin.getInstance().logger
+    private val debugEnabled
+        get() = Qlcustomspawn.config.getBoolean("debug", false)
      var countDown = periodSeconds
 
     override fun run() {
@@ -76,7 +79,7 @@ class SpawnContainer private constructor(
 
         val onlinePlayerCount = Bukkit.getOnlinePlayers().size
         if (onlinePlayerCount == 0) {
-            logger.info("[QLCustomSpawn] 容器 $name 跳过生成：当前服务器无在线玩家")
+            logDebugInfo("[QLCustomSpawn] 容器 $name 跳过生成：当前服务器无在线玩家")
             return false
         }
 
@@ -99,19 +102,31 @@ class SpawnContainer private constructor(
             val result = try {
                 Arim.evaluator.evaluate(expression)
             } catch (e: Exception) {
-                logger.warning("[QLCustomSpawn] 容器 $name 条件 '$condition' 解析失败，解析式 '$expression'，原因：${e.message}")
+                logDebugWarning("[QLCustomSpawn] 容器 $name 条件 '$condition' 解析失败，解析式 '$expression'，原因：${e.message}")
                 false
             }
 
-            logger.info("[QLCustomSpawn] 容器 $name 条件检查：原始='$condition'，解析='$expression'，结果=$result，当前宝可梦数量=$cobblemonCount，在线玩家数=$onlinePlayerCount")
+            logDebugInfo("[QLCustomSpawn] 容器 $name 条件检查：原始='$condition'，解析='$expression'，结果=$result，当前宝可梦数量=$cobblemonCount，在线玩家数=$onlinePlayerCount")
             result
         }
 
         if (!allPassed) {
-            logger.info("[QLCustomSpawn] 容器 $name 条件未全部通过，本次跳过生成")
+            logDebugInfo("[QLCustomSpawn] 容器 $name 条件未全部通过，本次跳过生成")
         }
 
         return allPassed
+    }
+
+    private fun logDebugInfo(message: String) {
+        if (debugEnabled) {
+            logger.info(message)
+        }
+    }
+
+    private fun logDebugWarning(message: String) {
+        if (debugEnabled) {
+            logger.warning(message)
+        }
     }
 
     override fun toString(): String {
