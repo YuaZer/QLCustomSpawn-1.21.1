@@ -5,9 +5,9 @@ import io.github.yuazer.qlcustomspawn.api.extension.CobbleExtension.createPokemo
 import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.toLocation
 import io.github.yuazer.qlcustomspawn.utils.LocationUtils
 import io.github.yuazer.qlcustomspawn.utils.RandomUtils
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.scheduler.BukkitRunnable
-import taboolib.common.platform.function.onlinePlayers
 import taboolib.module.configuration.Configuration
 import taboolib.platform.BukkitPlugin
 import top.maplex.arim.Arim
@@ -74,6 +74,12 @@ class SpawnContainer private constructor(
             return true
         }
 
+        val onlinePlayerCount = Bukkit.getOnlinePlayers().size
+        if (onlinePlayerCount == 0) {
+            logger.info("[QLCustomSpawn] 容器 $name 跳过生成：当前服务器无在线玩家")
+            return false
+        }
+
         val cobblemonCount = LocationUtils.getCobblemonInArea(area.pointA, area.pointB)
         val replaceMap = mapOf(
             "%location1_x%" to area.pointA.x.toString(),
@@ -85,12 +91,34 @@ class SpawnContainer private constructor(
             "%cobblemon_count%" to cobblemonCount.toString()
         )
 
-        return conditions.all { condition ->
+        val allPassed = conditions.all { condition ->
             val expression = replaceMap.entries.fold(condition) { acc, entry ->
                 acc.replace(entry.key, entry.value)
             }
-            Arim.evaluator.evaluate(expression)
-        } && onlinePlayers().isNotEmpty()
+
+            val result = try {
+                Arim.evaluator.evaluate(expression).let {
+                    if (it is Boolean) {
+                        it
+                    } else {
+                        logger.warning("[QLCustomSpawn] 容器 $name 条件 '$condition' 解析后为 '$expression'，结果非布尔值：$it")
+                        false
+                    }
+                }
+            } catch (e: Exception) {
+                logger.warning("[QLCustomSpawn] 容器 $name 条件 '$condition' 解析失败，解析式 '$expression'，原因：${e.message}")
+                false
+            }
+
+            logger.info("[QLCustomSpawn] 容器 $name 条件检查：原始='$condition'，解析='$expression'，结果=$result，当前宝可梦数量=$cobblemonCount，在线玩家数=$onlinePlayerCount")
+            result
+        }
+
+        if (!allPassed) {
+            logger.info("[QLCustomSpawn] 容器 $name 条件未全部通过，本次跳过生成")
+        }
+
+        return allPassed
     }
 
     override fun toString(): String {
