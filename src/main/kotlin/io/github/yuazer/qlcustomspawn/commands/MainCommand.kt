@@ -26,6 +26,7 @@ object MainCommand {
             Qlcustomspawn.config.reload()
             CreaterApi.getManager().reload()
             ContainerApi.getManager().reloadAll()
+            ContainerApi.getManager().startAll()
             if (Qlcustomspawn.isRunnableInitialized()) {
                 Qlcustomspawn.clearRunnable.cancel()
             }
