@@ -97,14 +97,7 @@ class SpawnContainer private constructor(
             }
 
             val result = try {
-                Arim.evaluator.evaluate(expression).let {
-                    if (it is Boolean) {
-                        it
-                    } else {
-                        logger.warning("[QLCustomSpawn] 容器 $name 条件 '$condition' 解析后为 '$expression'，结果非布尔值：$it")
-                        false
-                    }
-                }
+                Arim.evaluator.evaluate(expression)
             } catch (e: Exception) {
                 logger.warning("[QLCustomSpawn] 容器 $name 条件 '$condition' 解析失败，解析式 '$expression'，原因：${e.message}")
                 false
