@@ -102,7 +102,8 @@ class ClearRunnable(private val mode: String) : BukkitRunnable() {
             if (!shouldKeep) {
                 clearCount++
                 if (pokemon.isAlive) {
-                    pokemon.remove(RemovalReason.KILLED)
+                    bukkitEntity.remove()
+//                    pokemon.remove(RemovalReason.KILLED)
                 }
             }
             iterator.remove()

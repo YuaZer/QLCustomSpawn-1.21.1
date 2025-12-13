@@ -59,8 +59,11 @@ object LocationUtils {
     }
 
 
-    fun getRandomGroundLocation(loc1: Location, loc2: Location): Location? {
-        val world: World = loc1.world ?: return null
+    fun getRandomGroundLocation(
+        loc1: Location,
+        loc2: Location
+    ): Location? {
+        val world = loc1.world ?: return null
 
         val minX = minOf(loc1.blockX, loc2.blockX)
         val maxX = maxOf(loc1.blockX, loc2.blockX)
@@ -69,26 +72,58 @@ object LocationUtils {
         val minY = minOf(loc1.blockY, loc2.blockY)
         val maxY = maxOf(loc1.blockY, loc2.blockY)
 
-        repeat(100) { // 最多尝试100次
+        fun isLava(type: Material) = type == Material.LAVA
+
+        fun isDangerous(type: Material): Boolean = when (type) {
+            Material.LAVA,
+            Material.FIRE,
+            Material.SOUL_FIRE,
+            Material.CAMPFIRE,
+            Material.SOUL_CAMPFIRE,
+            Material.MAGMA_BLOCK,
+            Material.CACTUS,
+            Material.SWEET_BERRY_BUSH -> true
+            else -> false
+        }
+
+        /** 玩家身体是否能占据这个方块 */
+        fun isBodySafe(type: Material): Boolean {
+            if (isDangerous(type)) return false
+            return type == Material.AIR || type == Material.WATER
+        }
+
+        /** 脚下是否是安全支撑 */
+        fun isSafeGround(type: Material): Boolean {
+            if (isDangerous(type)) return false
+            return type.isSolid || type == Material.WATER
+        }
+
+        // 明确：最多随机 100 次 XZ
+        repeat(100) {
             val x = Random.nextInt(minX, maxX + 1)
             val z = Random.nextInt(minZ, maxZ + 1)
 
+            // 从高到低找地面
             for (y in maxY downTo minY) {
-                val current = Location(world, x.toDouble(), y.toDouble(), z.toDouble())
-                val below = current.clone().subtract(0.0, 1.0, 0.0)
-                val above = current.clone().add(0.0, 1.0, 0.0)
+                val feet = Location(world, x.toDouble(), y.toDouble(), z.toDouble())
+                val head = feet.clone().add(0.0, 1.0, 0.0)
+                val below = feet.clone().subtract(0.0, 1.0, 0.0)
 
-                if (
-                    current.block.type == Material.AIR &&
-                    above.block.type == Material.AIR &&
-                    below.block.type.isSolid
-                ) {
-                    return current
-                }
+                val feetType = feet.block.type
+                val headType = head.block.type
+                val belowType = below.block.type
+
+                if (!isBodySafe(feetType)) continue
+                if (!isBodySafe(headType)) continue
+                if (!isSafeGround(belowType)) continue
+
+                // 返回方块中心点，体验更好
+                return feet.add(0.5, 0.0, 0.5)
             }
         }
 
-        return null // 找不到有效坐标
+        return null
     }
+
 
 }
