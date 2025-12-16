@@ -1,7 +1,10 @@
 package io.github.yuazer.qlcustomspawn.utils
 
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.abilities.HiddenAbilityType
+import org.bukkit.Bukkit
+import org.bukkit.entity.Entity
 
 object CobbleUtils {
     fun Pokemon.hasHiddenAbility(): Boolean {
@@ -32,5 +35,8 @@ object CobbleUtils {
         return this.ability.template.name in this.form.abilities.mapping.flatMap { it.value }
             .filter { it.type == HiddenAbilityType }
             .map { it.template.name }
+    }
+    fun PokemonEntity.getBukkitEntity(): Entity? {
+        return Bukkit.getEntity(this.uuid)
     }
 }

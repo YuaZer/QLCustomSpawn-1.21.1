@@ -3,7 +3,9 @@ package io.github.yuazer.qlcustomspawn.obj.runnable
 import io.github.yuazer.qlcustomspawn.Qlcustomspawn
 import io.github.yuazer.qlcustomspawn.api.data.CreaterApi
 import io.github.yuazer.qlcustomspawn.api.extension.CobbleExtension.createPokemon
+import io.github.yuazer.qlcustomspawn.api.extension.EntityExtension.isCobblemon
 import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.toLocation
+import io.github.yuazer.qlcustomspawn.utils.CobbleUtils.getBukkitEntity
 import io.github.yuazer.qlcustomspawn.utils.LocationUtils
 import io.github.yuazer.qlcustomspawn.utils.LocationUtils.isInArea
 import io.github.yuazer.qlcustomspawn.utils.PersistentDataContainerUtil
@@ -72,7 +74,7 @@ class SpawnContainer private constructor(
         }
 
         val pokemonEntity = pokemonSpec.createPokemon(spawnLocation)
-        val bukkitEntity = pokemonEntity?.bukkitEntity
+        val bukkitEntity = pokemonEntity?.getBukkitEntity()
 
         if (bukkitEntity == null) {
             logDebugWarning("[QLCustomSpawn] 容器 $name 生成宝可梦失败，返回的实体为空")
@@ -131,9 +133,8 @@ class SpawnContainer private constructor(
         val world = area.pointA.world ?: return 0
 
         return world.entities.count { entity ->
-            entity.isCobblemon() &&
-                    entity.location.isInArea(area.pointA, area.pointB) &&
-                    PersistentDataContainerUtil.isFromContainer(entity, name)
+            entity.isCobblemon() &&PersistentDataContainerUtil.isFromContainer(entity, name)
+
         }
     }
 
