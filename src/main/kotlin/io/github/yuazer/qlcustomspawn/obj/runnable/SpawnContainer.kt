@@ -5,6 +5,8 @@ import io.github.yuazer.qlcustomspawn.api.data.CreaterApi
 import io.github.yuazer.qlcustomspawn.api.extension.CobbleExtension.createPokemon
 import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.toLocation
 import io.github.yuazer.qlcustomspawn.utils.LocationUtils
+import io.github.yuazer.qlcustomspawn.utils.LocationUtils.isInArea
+import io.github.yuazer.qlcustomspawn.utils.PersistentDataContainerUtil
 import io.github.yuazer.qlcustomspawn.utils.RandomUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -69,7 +71,15 @@ class SpawnContainer private constructor(
             return
         }
 
-        pokemonSpec.createPokemon(spawnLocation)
+        val pokemonEntity = pokemonSpec.createPokemon(spawnLocation)
+        val bukkitEntity = pokemonEntity?.bukkitEntity
+
+        if (bukkitEntity == null) {
+            logDebugWarning("[QLCustomSpawn] 容器 $name 生成宝可梦失败，返回的实体为空")
+            return
+        }
+
+        PersistentDataContainerUtil.setContainerId(bukkitEntity, name)
     }
 
     private fun canSpawn(): Boolean {
@@ -83,7 +93,7 @@ class SpawnContainer private constructor(
             return false
         }
 
-        val cobblemonCount = LocationUtils.getCobblemonInArea(area.pointA, area.pointB)
+        val cobblemonCount = countContainerPokemon()
         val replaceMap = mapOf(
             "%location1_x%" to area.pointA.x.toString(),
             "%location1_y%" to area.pointA.y.toString(),
@@ -115,6 +125,16 @@ class SpawnContainer private constructor(
         }
 
         return allPassed
+    }
+
+    private fun countContainerPokemon(): Int {
+        val world = area.pointA.world ?: return 0
+
+        return world.entities.count { entity ->
+            entity.isCobblemon() &&
+                    entity.location.isInArea(area.pointA, area.pointB) &&
+                    PersistentDataContainerUtil.isFromContainer(entity, name)
+        }
     }
 
     private fun logDebugInfo(message: String) {

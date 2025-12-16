@@ -4,7 +4,7 @@ location1: "world,95.5,65.0,-368,0.0,0.0"
 location2: "world,88,62,-379,0.0,0.0"
 #生成周期(单位:秒)
 period: 30
-#生成条件(%count%表示当前区域存在的宝可梦数量)
+#生成条件(%cobblemon_count%表示当前区域属于此容器的宝可梦数量)
 conditions:
   - "%cobblemon_count% <= 12"
 #生成器
