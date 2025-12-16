@@ -5,6 +5,9 @@ debug: false
 #是否开服自动开启所有生成容器
 auto_start: false
 
+#标记生成精灵所使用的 PersistentDataContainer 键（字符串类型）
+pdc-key: "qlcustomspawn-container-id"
+
 #清理精灵模块
 clear:
   #是否开服自动开启
