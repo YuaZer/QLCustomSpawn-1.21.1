@@ -4,6 +4,8 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.abilities.HiddenAbilityType
 import org.bukkit.Bukkit
+import org.bukkit.craftbukkit.v1_21_R1.CraftServer
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftEntity
 import org.bukkit.entity.Entity
 
 object CobbleUtils {
@@ -37,6 +39,7 @@ object CobbleUtils {
             .map { it.template.name }
     }
     fun PokemonEntity.getBukkitEntity(): Entity? {
-        return Bukkit.getEntity(this.uuid)
+        val entity = CraftEntity.getEntity<net.minecraft.world.entity.Entity?>(Bukkit.getServer() as CraftServer, this)
+        return entity
     }
 }

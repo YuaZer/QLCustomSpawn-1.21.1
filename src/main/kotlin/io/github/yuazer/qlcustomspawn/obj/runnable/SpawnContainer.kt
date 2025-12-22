@@ -13,6 +13,7 @@ import io.github.yuazer.qlcustomspawn.utils.RandomUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.scheduler.BukkitRunnable
+import taboolib.common.platform.function.submit
 import taboolib.module.configuration.Configuration
 import taboolib.platform.BukkitPlugin
 import top.maplex.arim.Arim
@@ -22,16 +23,16 @@ import top.maplex.arim.Arim
  */
 class SpawnContainer private constructor(
     val name: String,
-     val area: SpawnArea,
-     val periodSeconds: Int,
-     val spawner: Map<String, Double>,
-     val conditions: List<String>
+    val area: SpawnArea,
+    val periodSeconds: Int,
+    val spawner: Map<String, Double>,
+    val conditions: List<String>
 ) : BukkitRunnable() {
 
     private val logger = BukkitPlugin.getInstance().logger
     private val debugEnabled
         get() = Qlcustomspawn.config.getBoolean("debug", false)
-     var countDown = periodSeconds
+    var countDown = periodSeconds
 
     override fun run() {
         if (--countDown > 0) {
@@ -75,12 +76,10 @@ class SpawnContainer private constructor(
 
         val pokemonEntity = pokemonSpec.createPokemon(spawnLocation)
         val bukkitEntity = pokemonEntity?.getBukkitEntity()
-
         if (bukkitEntity == null) {
             logDebugWarning("[QLCustomSpawn] 容器 $name 生成宝可梦失败，返回的实体为空")
             return
         }
-
         PersistentDataContainerUtil.setContainerId(bukkitEntity, name)
     }
 
@@ -133,7 +132,7 @@ class SpawnContainer private constructor(
         val world = area.pointA.world ?: return 0
 
         return world.entities.count { entity ->
-            entity.isCobblemon() &&PersistentDataContainerUtil.isFromContainer(entity, name)
+            entity.isCobblemon() && PersistentDataContainerUtil.isFromContainer(entity, name)
 
         }
     }
