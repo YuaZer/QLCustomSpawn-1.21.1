@@ -4,6 +4,7 @@ Lang: "zh_CN"
 debug: false
 #是否开服自动开启所有生成容器
 auto_start: false
+container_default_max_count: 12
 
 #标记生成精灵所使用的 PersistentDataContainer 键（字符串类型）
 pdc-key: "qlcustomspawn-container-id"

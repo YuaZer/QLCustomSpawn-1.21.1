@@ -33,6 +33,12 @@ object CobbleUtils {
         }
 
     }
+    fun putPokemonData(pokemon:Pokemon,key: String,value: String){
+        pokemon.persistentData.putString(key,value)
+    }
+    fun getPokemonData(pokemon:Pokemon,key: String): String?{
+        return pokemon.persistentData.getString(key)
+    }
     fun Pokemon.isHiddenAbility(): Boolean {
         return this.ability.template.name in this.form.abilities.mapping.flatMap { it.value }
             .filter { it.type == HiddenAbilityType }

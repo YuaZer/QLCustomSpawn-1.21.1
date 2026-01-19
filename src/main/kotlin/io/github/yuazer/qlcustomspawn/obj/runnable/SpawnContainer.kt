@@ -5,15 +5,15 @@ import io.github.yuazer.qlcustomspawn.api.data.CreaterApi
 import io.github.yuazer.qlcustomspawn.api.extension.CobbleExtension.createPokemon
 import io.github.yuazer.qlcustomspawn.api.extension.EntityExtension.isCobblemon
 import io.github.yuazer.qlcustomspawn.api.extension.LocationExtension.toLocation
-import io.github.yuazer.qlcustomspawn.utils.CobbleUtils.getBukkitEntity
+import io.github.yuazer.qlcustomspawn.api.extension.NMSExtension.getNMSEntity
+import io.github.yuazer.qlcustomspawn.utils.CobbleUtils.getPokemonData
+import io.github.yuazer.qlcustomspawn.utils.CobbleUtils.putPokemonData
 import io.github.yuazer.qlcustomspawn.utils.LocationUtils
-import io.github.yuazer.qlcustomspawn.utils.LocationUtils.isInArea
-import io.github.yuazer.qlcustomspawn.utils.PersistentDataContainerUtil
 import io.github.yuazer.qlcustomspawn.utils.RandomUtils
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.scheduler.BukkitRunnable
-import taboolib.common.platform.function.submit
 import taboolib.module.configuration.Configuration
 import taboolib.platform.BukkitPlugin
 import top.maplex.arim.Arim
@@ -29,9 +29,12 @@ class SpawnContainer private constructor(
     val conditions: List<String>
 ) : BukkitRunnable() {
 
+
     private val logger = BukkitPlugin.getInstance().logger
     private val debugEnabled
         get() = Qlcustomspawn.config.getBoolean("debug", false)
+    private val defaultMaxCount
+        get() = Qlcustomspawn.config.getInt("container_default_max_count", -1)
     var countDown = periodSeconds
 
     override fun run() {
@@ -75,26 +78,39 @@ class SpawnContainer private constructor(
         }
 
         val pokemonEntity = pokemonSpec.createPokemon(spawnLocation)
-        val bukkitEntity = pokemonEntity?.getBukkitEntity()
-        if (bukkitEntity == null) {
+        if (pokemonEntity == null) {
             logDebugWarning("[QLCustomSpawn] 容器 $name 生成宝可梦失败，返回的实体为空")
             return
         }
-        PersistentDataContainerUtil.setContainerId(bukkitEntity, name)
+        putPokemonData(pokemonEntity.pokemon, CONTAINER_DATA_KEY, name)
     }
 
     private fun canSpawn(): Boolean {
-        if (conditions.isEmpty()) {
-            return true
+        val world = area.pointA.world
+        val onlinePlayerCount = if (world == null) {
+            0
+        } else {
+            Bukkit.getOnlinePlayers().count { player ->
+                player.world.name.equals(world.name, true)
+            }
         }
 
-        val onlinePlayerCount = Bukkit.getOnlinePlayers().size
         if (onlinePlayerCount == 0) {
             logDebugInfo("[QLCustomSpawn] 容器 $name 跳过生成：当前服务器无在线玩家")
             return false
         }
 
         val cobblemonCount = countContainerPokemon()
+        val maxCount = defaultMaxCount
+        if (maxCount > 0 && cobblemonCount >= maxCount) {
+            logDebugInfo("[QLCustomSpawn] Container $name skipped: reached max limit $maxCount")
+            return false
+        }
+
+        if (conditions.isEmpty()) {
+            return true
+        }
+
         val replaceMap = mapOf(
             "%location1_x%" to area.pointA.x.toString(),
             "%location1_y%" to area.pointA.y.toString(),
@@ -132,8 +148,11 @@ class SpawnContainer private constructor(
         val world = area.pointA.world ?: return 0
 
         return world.entities.count { entity ->
-            entity.isCobblemon() && PersistentDataContainerUtil.isFromContainer(entity, name)
-
+            if (!entity.isCobblemon()) {
+                return@count false
+            }
+            val pokemonEntity = entity.getNMSEntity() as? PokemonEntity ?: return@count false
+            getPokemonData(pokemonEntity.pokemon, CONTAINER_DATA_KEY) == name
         }
     }
 
@@ -168,6 +187,7 @@ class SpawnContainer private constructor(
     }
 
     companion object {
+        private const val CONTAINER_DATA_KEY = "QLCustomSpawnConatiner"
         fun fromConfiguration(name: String, config: Configuration): SpawnContainer? {
             val logger = BukkitPlugin.getInstance().logger
 
