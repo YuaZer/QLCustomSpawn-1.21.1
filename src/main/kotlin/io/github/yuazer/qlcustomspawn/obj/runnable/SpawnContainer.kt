@@ -87,16 +87,30 @@ class SpawnContainer private constructor(
 
     private fun canSpawn(): Boolean {
         val world = area.pointA.world
-        val onlinePlayerCount = if (world == null) {
-            0
-        } else {
-            Bukkit.getOnlinePlayers().count { player ->
-                player.world.name.equals(world.name, true)
-            }
+        if (world == null) {
+            logDebugInfo("[QLCustomSpawn] 容器 $name 跳过生成：世界未加载")
+            return false
         }
 
-        if (onlinePlayerCount == 0) {
-            logDebugInfo("[QLCustomSpawn] 容器 $name 跳过生成：当前服务器无在线玩家")
+        // 检查是否有玩家在刷怪区域内
+        val playersInArea = Bukkit.getOnlinePlayers().count { player ->
+            if (!player.world.name.equals(world.name, true)) {
+                return@count false
+            }
+            // 检查玩家是否在区域范围内
+            val loc = player.location
+            val minX = minOf(area.pointA.x, area.pointB.x)
+            val maxX = maxOf(area.pointA.x, area.pointB.x)
+            val minY = minOf(area.pointA.y, area.pointB.y)
+            val maxY = maxOf(area.pointA.y, area.pointB.y)
+            val minZ = minOf(area.pointA.z, area.pointB.z)
+            val maxZ = maxOf(area.pointA.z, area.pointB.z)
+
+            loc.x in minX..maxX && loc.y in minY..maxY && loc.z in minZ..maxZ
+        }
+
+        if (playersInArea == 0) {
+            logDebugInfo("[QLCustomSpawn] 容器 $name 跳过生成：区域内无玩家")
             return false
         }
 
@@ -133,7 +147,7 @@ class SpawnContainer private constructor(
                 false
             }
 
-            logDebugInfo("[QLCustomSpawn] 容器 $name 条件检查：原始='$condition'，解析='$expression'，结果=$result，当前宝可梦数量=$cobblemonCount，在线玩家数=$onlinePlayerCount")
+            logDebugInfo("[QLCustomSpawn] 容器 $name 条件检查：原始='$condition'，解析='$expression'，结果=$result，当前宝可梦数量=$cobblemonCount，区域内玩家数=$playersInArea")
             result
         }
 

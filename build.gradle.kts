@@ -90,7 +90,7 @@ repositories {
 
 dependencies {
 //    modImplementation("com.cobblemon:fabric:1.6.1+1.21.1")
-    modCompileOnly("com.cobblemon:fabric:1.6.1+1.21.1")
+    modCompileOnly("com.cobblemon:fabric:1.7.1+1.21.1")
     // To change the versions see the gradle.properties file
     minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
 //    mappings("net.fabricmc:yarn:${project.property("yarn_mappings")}:v2")
